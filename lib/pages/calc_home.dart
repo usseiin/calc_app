@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:calc_app/constants..dart';
 import 'package:flutter/material.dart';
 
@@ -11,10 +13,10 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  late double firstValue;
-  late double secondValue;
+  late num firstValue;
+  late num secondValue;
   String result = "0";
-  late String displayText = "00";
+  late String displayText = "0";
   late String operator;
   String history = "";
   String previousButton = "";
@@ -31,55 +33,54 @@ class _HomeState extends State<Home> {
       firstValue = 0;
       secondValue = 0;
       result = "0";
-      history = '';
     } else if (text == 'cancel') {
       if (result.length == 1) {
         result = "0";
       } else {
-        result = displayText
-            .substring(0, displayText.length - 1)
-            .modifyDisplayText();
+        result = displayText.substring(0, displayText.length - 1);
       }
     } else if (text == "+/-") {
       if (displayText[0] != "-") {
-        result = "-$displayText".modifyDisplayText();
+        result = "-$displayText";
       } else {
-        result = displayText.substring(1).modifyDisplayText();
+        result = displayText.substring(1);
       }
     } else if (text == "%") {
-      result = (firstValue + double.parse(displayText) / 100)
-          .toString()
-          .modifyDisplayText();
-      history = "$firstValue + ${double.parse(displayText) / 100}";
+      result = (firstValue + num.parse(displayText) / 100).toString();
+      history = "$firstValue + ${num.parse(displayText) / 100}";
     } else if (text == "+" || text == "/" || text == "X" || text == "-") {
-      firstValue = double.parse(displayText);
-      result = "";
+      firstValue = num.parse(displayText);
+      result = "0";
       operator = text;
+    } else if (text == ".") {
+      if (!result.contains(".")) {
+        log(text);
+        result = "$result.";
+      }
     } else if (text == "=") {
-      secondValue = double.parse(displayText);
+      secondValue = num.parse(displayText);
 
       if (operator == '+') {
-        result = (firstValue + secondValue).toString().modifyDisplayText();
+        result = (firstValue + secondValue).toString();
         history = "$firstValue + $secondValue";
       }
       if (operator == '-') {
-        result = (firstValue - secondValue).toString().modifyDisplayText();
+        result = (firstValue - secondValue).toString();
         history = "$firstValue - $secondValue";
       }
       if (operator == 'X') {
-        result = (firstValue * secondValue).toString().modifyDisplayText();
+        result = (firstValue * secondValue).toString();
         history = "$firstValue X $secondValue";
       }
       if (operator == '/') {
-        result = (firstValue / secondValue).toString().modifyDisplayText();
+        result = (firstValue / secondValue).toString();
         history = "$firstValue / $secondValue";
       }
     } else {
       if (previousButton == "=") {
         result = text;
       } else {
-        result =
-            double.parse(displayText + text).toString().modifyDisplayText();
+        result = num.parse(displayText + text).toString();
       }
     }
 
@@ -88,7 +89,6 @@ class _HomeState extends State<Home> {
     });
 
     previousButton = text;
-    print(previousButton);
   }
 
   @override
@@ -128,8 +128,7 @@ class _HomeState extends State<Home> {
                     const EdgeInsets.symmetric(vertical: 26, horizontal: 10),
                 decoration: const BoxDecoration(),
                 child: Text(
-                  // _modifyDisplayText
-                  displayText.modifyDisplayText(),
+                  displayText,
                   style: const TextStyle(
                     fontSize: 36,
                     color: textColor,
@@ -326,11 +325,11 @@ class _HomeState extends State<Home> {
   }
 }
 
-extension StringModify on String {
-  modifyDisplayText() {
-    if (endsWith(".0")) {
-      return substring(0, length - 2);
-    }
-    return this;
-  }
-}
+// extension StringModify on String {
+//   modifyDisplayText() {
+//     if (endsWith(".0")) {
+//       return substring(0, length - 1);
+//     }
+//     return this;
+//   }
+// }
