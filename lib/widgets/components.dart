@@ -18,7 +18,7 @@ class CalcButtonContainer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => callBack(text),
+      onTap: () => callBack(text) ?? {},
       child: Container(
         width: 70,
         height: 70,

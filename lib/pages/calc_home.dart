@@ -1,14 +1,94 @@
-import 'dart:developer';
-
 import 'package:calc_app/constants..dart';
 import 'package:flutter/material.dart';
 
 import '../widgets/components.dart';
 
-class Home extends StatelessWidget {
+class Home extends StatefulWidget {
   const Home({Key? key}) : super(key: key);
-  _callBack(text) {
-    log(text);
+
+  @override
+  State<Home> createState() => _HomeState();
+}
+
+class _HomeState extends State<Home> {
+  late double firstValue;
+  late double secondValue;
+  String result = "0";
+  late String displayText = "00";
+  late String operator;
+  String history = "";
+  String previousButton = "";
+
+  _callBack(String text) {
+    if (text == "AC") {
+      displayText = "0";
+      firstValue = 0;
+      secondValue = 0;
+      result = "0";
+      history = '';
+    } else if (text == "C") {
+      displayText = "0";
+      firstValue = 0;
+      secondValue = 0;
+      result = "0";
+      history = '';
+    } else if (text == 'cancel') {
+      if (result.length == 1) {
+        result = "0";
+      } else {
+        result = displayText
+            .substring(0, displayText.length - 1)
+            .modifyDisplayText();
+      }
+    } else if (text == "+/-") {
+      if (displayText[0] != "-") {
+        result = "-$displayText".modifyDisplayText();
+      } else {
+        result = displayText.substring(1).modifyDisplayText();
+      }
+    } else if (text == "%") {
+      result = (firstValue + double.parse(displayText) / 100)
+          .toString()
+          .modifyDisplayText();
+      history = "$firstValue + ${double.parse(displayText) / 100}";
+    } else if (text == "+" || text == "/" || text == "X" || text == "-") {
+      firstValue = double.parse(displayText);
+      result = "";
+      operator = text;
+    } else if (text == "=") {
+      secondValue = double.parse(displayText);
+
+      if (operator == '+') {
+        result = (firstValue + secondValue).toString().modifyDisplayText();
+        history = "$firstValue + $secondValue";
+      }
+      if (operator == '-') {
+        result = (firstValue - secondValue).toString().modifyDisplayText();
+        history = "$firstValue - $secondValue";
+      }
+      if (operator == 'X') {
+        result = (firstValue * secondValue).toString().modifyDisplayText();
+        history = "$firstValue X $secondValue";
+      }
+      if (operator == '/') {
+        result = (firstValue / secondValue).toString().modifyDisplayText();
+        history = "$firstValue / $secondValue";
+      }
+    } else {
+      if (previousButton == "=") {
+        result = text;
+      } else {
+        result =
+            double.parse(displayText + text).toString().modifyDisplayText();
+      }
+    }
+
+    setState(() {
+      displayText = result.toString();
+    });
+
+    previousButton = text;
+    print(previousButton);
   }
 
   @override
@@ -34,10 +114,10 @@ class Home extends StatelessWidget {
                 padding:
                     const EdgeInsets.symmetric(vertical: 26, horizontal: 10),
                 decoration: const BoxDecoration(),
-                child: const Text(
-                  '78X9',
-                  style: TextStyle(
-                    fontSize: 36,
+                child: Text(
+                  history,
+                  style: const TextStyle(
+                    fontSize: 20,
                     color: textColor,
                   ),
                 ),
@@ -47,10 +127,11 @@ class Home extends StatelessWidget {
                 padding:
                     const EdgeInsets.symmetric(vertical: 26, horizontal: 10),
                 decoration: const BoxDecoration(),
-                child: const Text(
-                  '789',
-                  style: TextStyle(
-                    fontSize: 20,
+                child: Text(
+                  // _modifyDisplayText
+                  displayText.modifyDisplayText(),
+                  style: const TextStyle(
+                    fontSize: 36,
                     color: textColor,
                   ),
                 ),
@@ -59,10 +140,13 @@ class Home extends StatelessWidget {
                 padding: const EdgeInsets.all(10.0),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.end,
-                  children: const [
-                    Icon(
-                      Icons.cancel_presentation_outlined,
-                      color: fillColor2,
+                  children: [
+                    IconButton(
+                      onPressed: () => _callBack("cancel"),
+                      icon: const Icon(
+                        Icons.cancel_presentation_outlined,
+                        color: fillColor2,
+                      ),
                     ),
                   ],
                 ),
@@ -73,17 +157,17 @@ class Home extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   CalcButtonContainer(
-                    text: "C",
+                    text: "AC",
                     textColor: textColor,
                     textSize: 24,
                     fillColor: fillColor,
                     callBack: _callBack,
                   ),
                   CalcButtonContainer(
-                    text: "( )",
-                    textColor: textColor1,
+                    text: "C",
+                    textColor: textColor,
                     textSize: 24,
-                    fillColor: fillColor2,
+                    fillColor: fillColor,
                     callBack: _callBack,
                   ),
                   CalcButtonContainer(
@@ -239,5 +323,14 @@ class Home extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+extension StringModify on String {
+  modifyDisplayText() {
+    if (endsWith(".0")) {
+      return substring(0, length - 2);
+    }
+    return this;
   }
 }
